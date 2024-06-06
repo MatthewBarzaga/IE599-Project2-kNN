@@ -175,12 +175,15 @@ def kNN(k, training_set, validation_set, column_data_types, selection_type):
 
         # Predict the class label based on weighted vote
         if selection_type == 'W':
+            i = 0
             for distance, class_label in distances[:k]:
                 if distance != 0:
                     weight = 1 / (distance ** 2)
                 else:
                     weight = float('inf')
-            weighted_labels[class_label] = weighted_labels.get(class_label, 0) + weight
+                weighted_labels[k_nearest_labels[i]] = weighted_labels.get(k_nearest_labels[i], 0) + weight
+                i += 1 
+            
             predicted_label = max(weighted_labels, key=weighted_labels.get)
             predictions.append(predicted_label)
         # Predict the class label based on majority vote
@@ -265,11 +268,11 @@ validation_set, _ = analyze_and_fill_csv(validation_set)
 ####################################
 predictions = kNN(k, training_set, validation_set, column_data_types, selection_type)
 error_percentage = calculate_error(predictions, validation_set)
-print(f"\nFold Results:")
 print(f"Error percentage: {error_percentage:.2f}%")
 
 if crossvalidationoption == 'Y':
     avg_error_percentage, error_percentages = cross_validation(data, k, folds, selection_type)
-    print(f"Average Error Percent: {avg_error_percentage:.2f}%")
+    print(f"\nFold Results:")
+    print(f"Average Error Percent of Folds: {avg_error_percentage:.2f}%")
     for i, error_percentage in enumerate(error_percentages):
         print(f"Error Percent for Fold {i + 1}: {error_percentage:.2f}%")
